@@ -24,7 +24,9 @@ async function request(method, path, body = null) {
     options.body = JSON.stringify(body)
   }
 
-  const res = await fetch(`${BASE_URL}${path}`, options)
+  const cleanBaseUrl = BASE_URL.replace(/\/+$/, '')
+  const cleanPath = '/' + path.replace(/^\/+/, '')
+  const res = await fetch(`${cleanBaseUrl}${cleanPath}`, options)
 
   if (res.status === 204) return null  // No Content
 
