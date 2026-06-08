@@ -6,6 +6,8 @@ services:
     buildCommand: pip install -r backend/requirements.txt
     startCommand: python -m uvicorn backend.main:app --host 0.0.0.0 --port $PORT
     envVars:
+      - key: PYTHON_VERSION
+        value: 3.11.9
       - key: DATABASE_URL
         value: sqlite+aiosqlite:///./together.db
       - key: ALLOWED_ORIGINS
