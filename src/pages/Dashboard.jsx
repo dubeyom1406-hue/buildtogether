@@ -5,7 +5,7 @@ import {
   MoreHorizontal, Image as ImageIcon, Video, Music, Heart, MessageSquare, 
   Share2, Search, SlidersHorizontal, UserPlus, Check, X, Shield, 
   GraduationCap, FileText, ChevronRight, Info, UploadCloud, UserCheck, Play,
-  Bookmark, Globe, Lock, Users, Link2, Hash, AtSign, Smile, BarChart2, Send
+  Bookmark, Globe, Lock, Users, Link2, Hash, AtSign, Smile, BarChart2, Send, Trash2
 } from 'lucide-react'
 import { useNavigate } from 'react-router-dom'
 import { useApp } from '../context/AppContext'
@@ -13,7 +13,7 @@ import { api } from '../api'
 
 export default function Dashboard() {
   const navigate = useNavigate()
-  const { currentUser, ideas, addIdea, addRequest, feedPosts, likePost, savePost, addComment, addFeedPost, selectedCategory, setSelectedCategory, selectedSkill, setSelectedSkill, selectedStage, setSelectedStage } = useApp()
+  const { currentUser, ideas, addIdea, addRequest, feedPosts, likePost, savePost, addComment, addFeedPost, deleteFeedPost, selectedCategory, setSelectedCategory, selectedSkill, setSelectedSkill, selectedStage, setSelectedStage } = useApp()
   const [activeTab, setActiveTab] = useState('feed') // 'feed', 'explore', 'post'
   const [postText, setPostText] = useState('')
   const [expandedComments, setExpandedComments] = useState({}) // postId -> boolean
@@ -274,7 +274,23 @@ export default function Dashboard() {
                             <span className="text-[10px] text-[#9A9FA5] font-semibold">{post.time}</span>
                           </div>
                         </div>
-                        <button className="text-[#9A9FA5] hover:text-[#1A1D1F] p-1.5 rounded-full transition-colors"><MoreHorizontal className="w-4.5 h-4.5" /></button>
+                        {post.authorUid === currentUser?.uid ? (
+                          <button 
+                            onClick={() => {
+                              if (window.confirm('Are you sure you want to delete this post?')) {
+                                deleteFeedPost(post.id)
+                              }
+                            }}
+                            className="text-[#9A9FA5] hover:text-rose-600 p-1.5 rounded-full transition-colors cursor-pointer"
+                            title="Delete Post"
+                          >
+                            <Trash2 className="w-4.5 h-4.5" />
+                          </button>
+                        ) : (
+                          <button className="text-[#9A9FA5] hover:text-[#1A1D1F] p-1.5 rounded-full transition-colors">
+                            <MoreHorizontal className="w-4.5 h-4.5" />
+                          </button>
+                        )}
                       </div>
                       <p className="text-xs font-semibold text-[#1A1D1F] leading-snug">{post.content}</p>
                       {post.image && (

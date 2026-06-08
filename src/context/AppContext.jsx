@@ -335,6 +335,13 @@ export function AppProvider({ children }) {
     } catch (err) { console.error('addFeedPost failed:', err) }
   }
 
+  const deleteFeedPost = async (postId) => {
+    try {
+      await api.deletePost(postId)
+      await fetchPosts()
+    } catch (err) { console.error('deleteFeedPost failed:', err) }
+  }
+
   const rateUser = async (uid, rating) => {
     try {
       const updated = await api.rateUser(uid, rating)
@@ -378,6 +385,7 @@ export function AppProvider({ children }) {
         savePost,
         addComment,
         addFeedPost,
+        deleteFeedPost,
         rateUser,
         changePassword,
         deactivateAccount,
