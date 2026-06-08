@@ -16,7 +16,17 @@ import Events from './pages/Events'
 function PrivateRoute({ children }) {
   const { currentUser, isLoadingUser } = useApp()
   if (isLoadingUser) {
-    return <div className="h-screen w-full flex items-center justify-center bg-[#0d1117] text-gray-400">Loading...</div>
+    return (
+      <div className="h-screen w-full flex flex-col items-center justify-center bg-[#FDF1E4] gap-4">
+        <div className="relative flex items-center justify-center">
+          <div className="w-14 h-14 rounded-full border-4 border-brand-light border-t-brand-primary animate-spin"></div>
+          <img src="/logo_icon.png" alt="Logo" className="w-7 h-7 absolute object-contain" />
+        </div>
+        <span className="text-xs font-bold text-brand-muted uppercase tracking-widest animate-pulse">
+          Loading BUILT 2GETHER...
+        </span>
+      </div>
+    )
   }
   if (!currentUser) return <Navigate to="/login" replace />
   return children

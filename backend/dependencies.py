@@ -32,10 +32,17 @@ if not firebase_admin._apps:
             )
 
 
+import time
+
+# Simple in-memory token cache to avoid redundant crypto verifications on concurrent requests
+# key: token_string -> value: (uid, expiration_timestamp)
+_TOKEN_CACHE = {}
+
 async def get_current_uid(authorization: str = Header(...)) -> str:
     """
     Extract and verify Firebase ID token from Authorization header.
     Returns the Firebase UID of the authenticated user.
+    Uses an in-memory cache to prevent heavy cryptographic checks on parallel requests.
     """
     if not authorization.startswith("Bearer "):
         raise HTTPException(
@@ -43,9 +50,28 @@ async def get_current_uid(authorization: str = Header(...)) -> str:
             detail="Invalid authorization header format. Expected: Bearer <token>",
         )
     token = authorization.removeprefix("Bearer ").strip()
+    
+    now = time.time()
+    
+    # Check cache
+    if token in _TOKEN_CACHE:
+        cached_uid, cached_exp = _TOKEN_CACHE[token]
+        if now < cached_exp - 60:  # 60s safety buffer
+            return cached_uid
+        else:
+            _TOKEN_CACHE.pop(token, None)
+            
     try:
         decoded = firebase_auth.verify_id_token(token)
-        return decoded["uid"]
+        uid = decoded["uid"]
+        exp = decoded.get("exp", now + 3600)
+        
+        # Keep cache size small to avoid leaks
+        if len(_TOKEN_CACHE) > 500:
+            _TOKEN_CACHE.clear()
+            
+        _TOKEN_CACHE[token] = (uid, exp)
+        return uid
     except Exception as e:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
